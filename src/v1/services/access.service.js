@@ -14,11 +14,6 @@ const RoleBlog = {
 };
 
 class AccessService {
-    static login = async ({ email, password }) => {
-        const foundUser = await userModel.findOne({ email });
-        if (!foundUser) throw new NotFoundError('User not registered');
-    };
-
     static signup = async ({ name, email, password }) => {
         try {
             // check email exists ???
