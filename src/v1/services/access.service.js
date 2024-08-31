@@ -1,8 +1,11 @@
 'use strict';
 
 const userModel = require('../models/user.model');
+const fs = require('fs');
+const path = require('path');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { Types } = require('mongoose');
 const {
     createKeyToken,
     removeByUserId,
@@ -50,17 +53,16 @@ class AccessService {
         const foundShop = await findUserByEmail({ email });
         if (!foundShop) throw new AuthFailureError('Blog not registered!');
 
-        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-            modulusLength: 2048,
-            publicKeyEncoding: {
-                type: 'pkcs1', //pkcs8
-                format: 'pem',
-            },
-            privateKeyEncoding: {
-                type: 'pkcs1',
-                format: 'pem',
-            },
-        });
+        // Đường dẫn tới file privateKey.pem
+        const privateKeyPath = path.resolve(
+            __dirname,
+            '../../../privateKey.pem'
+        );
+
+        // Đọc nội dung của privateKey.pem
+        const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+        const publicKey = holderToken.publicKey;
+
         const tokens = await createTokenPair({
             payload: { userId, email },
             privateKey,
@@ -163,7 +165,6 @@ class AccessService {
 
             if (newShop) {
                 // created  privateKey, publicKey
-
                 const { privateKey, publicKey } = crypto.generateKeyPairSync(
                     'rsa',
                     {
@@ -184,6 +185,15 @@ class AccessService {
                     privateKey,
                     publicKey,
                 });
+
+                // Đường dẫn tới file privateKey.pem
+                const privateKeyPath = path.join(
+                    __dirname,
+                    '../../../privateKey.pem'
+                );
+
+                // Ghi privateKey vào file privateKey.pem
+                fs.writeFileSync(privateKeyPath, privateKey, 'utf8');
 
                 console.log(`Created Token Success:::`, tokens);
 
