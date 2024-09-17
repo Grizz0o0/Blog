@@ -29,6 +29,7 @@ const postSchema = new Schema(
             ],
             required: true,
         },
+        post_likesCount: { type: Number, default: 0 },
         post_tags: { type: [String], default: [] },
         isDraft: { type: Boolean, default: true, index: true, select: false },
         isPublished: {
